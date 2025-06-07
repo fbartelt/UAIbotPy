@@ -1,9 +1,14 @@
+// Include pybind11 FIRST to avoid conflicts
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
+#include <pybind11/stl.h>
+#include <pybind11/numpy.h>
+
+// Then include other headers
 #include <fstream>
 #include <sstream>
 #include <future>
 #include <iostream>
-#include <Eigen/Core>
-#include <Eigen/Dense>
 #include <list>
 #include <math.h>
 #include <vector>
@@ -11,19 +16,17 @@
 #include <memory>
 #include <functional>
 #include <typeinfo>
-#include <pybind11/pybind11.h>
-#include <pybind11/eigen.h>
-#include <pybind11/stl.h>
-#include <pybind11/numpy.h>
 #include <chrono>
+
+// Eigen includes
+#include <Eigen/Core>
+#include <Eigen/Dense>
 
 #include "declarations.h"
 
 using namespace std;
 using namespace std::chrono;
 using namespace Eigen;
-namespace py = pybind11;
-
 namespace py = pybind11;
 
 // Define your custom type casters in the `pybind11::detail` namespace
