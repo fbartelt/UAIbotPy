@@ -35,12 +35,12 @@ class CMakeBuild(build_ext):
         if sys.platform == "win32":
             # Use default Visual Studio generator
             cmake_args += ["-G", "Ninja"]
-            cmake_args.extend([
-                "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
-                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
-            ])
+            # cmake_args.extend([
+            #     "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
+            #     "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
+            # ])
             
-            # Remove make override since we're using MSBuild
+            # # Remove make override since we're using MSBuild
             cmake_args = [arg for arg in cmake_args if arg != "-DCMAKE_MAKE_PROGRAM=make"]
         else:
             # Unix-specific configuration
