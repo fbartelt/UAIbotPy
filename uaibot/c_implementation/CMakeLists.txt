@@ -30,7 +30,7 @@ set(pybind11_INCLUDE_DIR ${PYBIND11_INCLUDE_DIR})
 set(pybind11_DIR ${PYBIND11_DIR}/share/cmake/pybind11) 
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${pybind11_DIR}) 
 include_directories(${PYBIND11_INCLUDE_DIR})
-find_package(pybind11 REQUIRED)
+find_package(pybind11 REQUIRED CONFIG)
 
 
 #Add eigen
