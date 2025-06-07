@@ -1,6 +1,13 @@
-from simobjects.ball import *
-from graphics.meshmaterial import *
+from uaibot.simobjects.ball import *
+from uaibot.simobjects.group import *
+from uaibot.simobjects.cylinder import *
+from uaibot.graphics.meshmaterial import *
+from utils import *
 import numpy as np
+from typing import Optional, Tuple, List
+
+GroupableObject: TypeAlias = Union["Ball", "Box", "Cylinder", "ConvexPolytope", "Frame",
+                    "RigidObject", "Group", "Robot", "PointLight"]
 
 
 class Frame:
@@ -9,13 +16,13 @@ class Frame:
 
   Parameters
   ----------
-  htm : 4x4 numpy array or 4x4 nested list
+  htm : 4x4 numpy matrix
       The object's configuration.
       (default: the same as the current HTM).
 
   name : string
       The object's name.
-      (default: 'genFrame').
+      (default: '' (automatic)).
 
   size : positive float
       The axis sizes, in meters.
@@ -35,36 +42,38 @@ class Frame:
     #######################################
 
     @property
-    def size(self):
+    def size(self) -> float:
         """The axis size, in meters."""
         return self._size
 
     @property
-    def name(self):
+    def name(self) -> str:
         """Name of the object."""
         return self._name
 
     @property
-    def htm(self):
+    def htm(self) -> "HTMatrix":
         """Object pose. A 4x4 homogeneous transformation matrix written is scenario coordinates."""
         return np.matrix(self._ball.htm)
 
     @property
-    def axis_color(self):
+    def axis_color(self) -> List[str]:
         """The axis colors. It is a list of 3 HTML-compatible colors."""
         return self._axis_color
 
     @property
-    def axis_name(self):
+    def axis_name(self) -> List[str]:
         """The axis names. It is a list of 3 strings."""
         return self._axis_name
+
 
     #######################################
     # Constructor
     #######################################
 
-    def __init__(self, htm=np.identity(4), name="", size=0.3, axis_color=['red', 'lime', 'blue'],
-                 axis_names=['x', 'y', 'z']):
+    def __init__(self, htm: "HTMatrix" =np.identity(4), name: str ="", size: float =0.3, 
+                 axis_color: List[str] =['red', 'lime', 'blue'],
+                 axis_names: List[str] =['x', 'y', 'z']) -> "Frame":
 
         # Error handling
         if not Utils.is_a_matrix(htm, 4, 4):
@@ -95,6 +104,11 @@ class Frame:
         self._axis_color = axis_color
         self._ball = Ball(name="dummy_ball_" + name, htm=htm, radius=0.0001, mesh_material=MeshMaterial(opacity=0))
         self._max_time = 0
+        
+        cyl_x = Cylinder(radius=0.004, height=size, color = axis_color[0],htm=Utils.roty(np.pi/2)*Utils.trn([0,0,size/2]))
+        cyl_y = Cylinder(radius=0.004, height=size, color = axis_color[1],htm=Utils.rotx(-np.pi/2)*Utils.trn([0,0,size/2]))
+        cyl_z = Cylinder(radius=0.004, height=size, color = axis_color[2],htm=Utils.trn([0,0,size/2]))
+        self._axis_group = Group([cyl_x, cyl_y, cyl_z])
 
         # Set initial total configuration
         self.set_ani_frame(np.matrix(htm))
@@ -114,7 +128,7 @@ class Frame:
     # Methods
     #######################################
 
-    def add_ani_frame(self, time, htm=None):
+    def add_ani_frame(self, time: float, htm: Optional["HTMatrix"] = None) -> None:
         """
     Add a single configuration to the object's animation queue.
 
@@ -122,7 +136,7 @@ class Frame:
     ----------
     time: positive float
         The timestamp of the animation frame, in seconds.
-    htm : 4x4 numpy array or 4x4 nested list
+    htm : 4x4 numpy array
         The object's configuration.
         (default: the same as the current HTM).
 
@@ -131,18 +145,19 @@ class Frame:
     None
     """
 
-        self._ball.add_ani_frame(time, htm )
+        self._ball.add_ani_frame(time, htm)
+        self._axis_group.add_ani_frame(time, htm)
         self._max_time = self._ball._max_time
 
     # Set config. Restart animation queue
-    def set_ani_frame(self, htm=None):
+    def set_ani_frame(self, htm: Optional["HTMatrix"] = None) -> None:
         """
     Reset object's animation queue and add a single configuration to the
     object's animation queue.
 
     Parameters
     ----------
-    htm : 4x4 numpy array or 4x4 nested list
+    htm : 4x4 numpy matrix
         The object's configuration.
         (default: the same as the current HTM).
 
@@ -152,19 +167,22 @@ class Frame:
     """
 
         self._ball.set_ani_frame(htm)
+        self._axis_group.set_ani_frame(htm)
         self._max_time = 0
 
     def gen_code(self):
         """Generate code for injection."""
+        
+        return self._axis_group.gen_code()
 
-        string = "\n"
-        string += "//BEGIN DECLARATION OF THE FRAME '" + self.name + "'\n\n"
-        string += self._ball.gen_code().replace("//USER INPUT GOES HERE", "")
-        string += "var var_axes_" + self.name + " = new AxesHelper(" + str(
-            self.size) + ");\n"
-        string += "var_dummy_ball_" + self.name + ".shape.add(var_axes_" + self.name + ");\n"
-        string += "var_axes_" + self.name + ".setColors('" + \
-                  self.axis_color[0] + "', '" + self.axis_color[1] + "', '" + self.axis_color[2] + "');\n"
-        string += "sceneElements.push(var_dummy_ball_" + self.name + ");\n"
-        string += "//USER INPUT GOES HERE"
-        return string
+        # string = "\n"
+        # string += "//BEGIN DECLARATION OF THE FRAME '" + self.name + "'\n\n"
+        # string += self._ball.gen_code().replace("//USER INPUT GOES HERE", "")
+        # string += "var var_axes_" + self.name + " = new AxesHelper(" + str(
+        #     self.size) + ");\n"
+        # string += "var_dummy_ball_" + self.name + ".shape.add(var_axes_" + self.name + ");\n"
+        # string += "var_axes_" + self.name + ".setColors('" + \
+        #           self.axis_color[0] + "', '" + self.axis_color[1] + "', '" + self.axis_color[2] + "');\n"
+        # string += "sceneElements.push(var_dummy_ball_" + self.name + ");\n"
+        # string += "//USER INPUT GOES HERE"
+        # return string

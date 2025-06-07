@@ -1,8 +1,9 @@
 from utils import *
 import numpy as np
+import os
 
+def _fkm(self, q=None, axis='eef', htm=None, mode='auto'):
 
-def _fkm(self, q=None, axis='eef', htm=None):
     if q is None:
         q = self.q
     if htm is None:
@@ -11,6 +12,9 @@ def _fkm(self, q=None, axis='eef', htm=None):
     n = len(self._links)
 
     # Error handling
+    if mode not in ['python','c++','auto']:
+        raise Exception("The parameter 'mode' should be 'python,'c++', or 'auto'.")
+    
     if not Utils.is_a_vector(q, n):
         raise Exception("The parameter 'q' should be a " + str(n) + " dimensional vector.")
 
@@ -23,8 +27,23 @@ def _fkm(self, q=None, axis='eef', htm=None):
 
     if not Utils.is_a_matrix(htm, 4, 4):
         raise Exception("The parameter 'htm' should be a 4x4 homogeneous transformation matrix.")
+    
+    if mode=='c++' and os.environ['CPP_SO_FOUND']=='0':
+        raise Exception("c++ mode is set, but .so file was not loaded!")
     # end error handling
 
+    if mode == 'python' or axis == 'com' or (mode=='auto' and os.environ['CPP_SO_FOUND']=='0'):
+        return _fkm_python(self, Utils.cvt(q), axis, htm)
+    else:
+        fk_res = self.cpp_robot.fk(Utils.cvt(q), htm, False)
+        if axis=='eef':
+            return Utils.cvt(fk_res.htm_ee)
+        else:
+            return [Utils.cvt(m) for m in fk_res.htm_dh]
+
+def _fkm_python(self, q, axis, htm):
+
+    n = len(self._links)
     htm_dh = [np.matrix(np.zeros((4,4))) for i in range(n)]
 
     for i in range(n):
@@ -34,12 +53,12 @@ def _fkm(self, q=None, axis='eef', htm=None):
             htm_dh[i][:, :] = htm_dh[i - 1][:, :]
 
         if self.links[i].joint_type == 0:
-            htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.rotz(q[i])
+            htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.rotz(q[i,0])
         else:
             htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.rotz(self._links[i].theta)
 
         if self.links[i].joint_type == 1:
-            htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.trn([0, 0, q[i]])
+            htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.trn([0, 0, q[i,0]])
         else:
             htm_dh[i][:, :] = htm_dh[i][:, :] * Utils.trn([0, 0, self._links[i].d])
 

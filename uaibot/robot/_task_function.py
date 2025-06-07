@@ -1,9 +1,10 @@
 from utils import *
 import numpy as np
-
+import os
 
 # Function used for task function/task Jacobian
-def _task_function(self, htm_des, q=None, htm=None):
+def _task_function(self, htm_tg, q=None, htm=None, mode='auto'):
+
     if q is None:
         q = self.q
 
@@ -11,8 +12,11 @@ def _task_function(self, htm_des, q=None, htm=None):
         htm = self.htm
 
     # Error handling
-    if not Utils.is_a_matrix(htm_des, 4, 4):
-        raise Exception("The parameter 'htm_des' should be a 4x4 homogeneous transformation matrix.")
+    if mode not in ['python','c++','auto']:
+        raise Exception("The parameter 'mode' should be 'python,'c++', or 'auto'.")
+       
+    if not Utils.is_a_matrix(htm_tg, 4, 4):
+        raise Exception("The parameter 'htm_tg' should be a 4x4 homogeneous transformation matrix.")
 
     if not Utils.is_a_matrix(htm, 4, 4):
         raise Exception("The parameter 'htm' should be a 4x4 homogeneous transformation matrix.")
@@ -22,13 +26,30 @@ def _task_function(self, htm_des, q=None, htm=None):
         raise Exception("The parameter 'q' should be a " + str(n) + " dimensional vector.")
 
     # end error handling
+    if mode=='c++' and os.environ['CPP_SO_FOUND']=='0':
+        raise Exception("c++ mode is set, but .so file was not loaded!")
+    # end error handling
 
-    p_des = htm_des[0:3, 3]
-    x_des = htm_des[0:3, 0]
-    y_des = htm_des[0:3, 1]
-    z_des = htm_des[0:3, 2]
+    if mode == 'python'  or (mode=='auto' and os.environ['CPP_SO_FOUND']=='0'):
+        return _task_function_python(self, htm_tg, Utils.cvt(q), htm)
+    else:
+        task_res = self.cpp_robot.fk_task(Utils.cvt(q), htm, htm_tg)
+        return  Utils.cvt(task_res.task), Utils.cvt(task_res.jac_task)
 
-    jac_eef, htm_eef = self.jac_geo(q, "eef", htm)
+             
+            
+def _task_function_python(self, htm_tg, q=None, htm=None):
+
+
+    n = len(self.links)
+
+
+    p_des = htm_tg[0:3, 3]
+    x_des = htm_tg[0:3, 0]
+    y_des = htm_tg[0:3, 1]
+    z_des = htm_tg[0:3, 2]
+
+    jac_eef, htm_eef = self.jac_geo(q, "eef", htm, mode='python')
     p_eef = htm_eef[0:3, 3]
     x_eef = htm_eef[0:3, 0]
     y_eef = htm_eef[0:3, 1]
