@@ -32,6 +32,7 @@
 using namespace std;
 using namespace std::chrono;
 using namespace Eigen;
+using namespace pybind11::literals;
 namespace py = pybind11;
 
 PYBIND11_MODULE(uaibot_cpp_bind, m) {
