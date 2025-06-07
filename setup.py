@@ -33,15 +33,13 @@ class CMakeBuild(build_ext):
 
         # Windows-specific configuration
         if sys.platform == "win32":
-            # Remove Unix-specific flags
-            cmake_args = [arg for arg in cmake_args if not arg.startswith("-DCMAKE_MAKE_PROGRAM")]
-            
-            # Add Visual Studio generator
+            # Use default Visual Studio generator
             cmake_args.extend([
-                "-G", "MinGW Makefiles",
-                "-A", "x64",  # Target 64-bit
-                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"  # Required for DLL
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
             ])
+            
+            # Remove make override since we're using MSBuild
+            cmake_args = [arg for arg in cmake_args if arg != "-DCMAKE_MAKE_PROGRAM=make"]
         else:
             # Unix-specific configuration
             cmake_args.append("-DCMAKE_MAKE_PROGRAM=make")

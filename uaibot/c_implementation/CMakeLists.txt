@@ -1,9 +1,8 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(UAIBOT_CPP_BINDS)
 
 # Windows-specific setup
 if(WIN32)
-    add_compile_definitions(PYBIND11_EXPORT)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)  # Export all symbols for DLL
 endif()
 # Add python 3.11
@@ -64,6 +63,10 @@ target_link_libraries(uaibot_cpp_bind PRIVATE
     nanoflann
     ${Python3_LIBRARY_DIR}
 )
+# Windows-specific linking
+if(WIN32)
+    target_link_libraries(uaibot_cpp_bind PRIVATE ${Python3_LIBRARY_DIR})
+endif()
 
 message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
 message(STATUS "Python library: ${Python3_LIBRARIES}")
