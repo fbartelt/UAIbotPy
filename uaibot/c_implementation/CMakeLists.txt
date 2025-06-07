@@ -20,7 +20,7 @@ execute_process(
 
 # CHECK ALL FILES INSIDE PYBIND11_INCLUDE_DIR
 execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "import os, pybind11; print(os.listdir(os.path.dirname(pybind11.__file__)))"
+    COMMAND "${Python3_EXECUTABLE}" -c "import os, pybind11; print(os.listdir(os.path.join(os.path.dirname(pybind11.__file__), 'share', 'cmake', 'pybind11')))"
     OUTPUT_VARIABLE PYBIND11_FILES
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
