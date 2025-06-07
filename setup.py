@@ -28,10 +28,23 @@ class CMakeBuild(build_ext):
             f"-DPython3_INCLUDE_DIR={python_include_dir}",
             f"-DPython3_LIBRARY_DIR={python_library_dir}",
             "-DCMAKE_BUILD_TYPE=Release",
-            "-DCMAKE_MAKE_PROGRAM=make",
             f"-DPython3_ROOT_DIR={os.path.dirname(os.path.dirname(sys.executable))}",
         ]
 
+        # Windows-specific configuration
+        if sys.platform == "win32":
+            # Remove Unix-specific flags
+            cmake_args = [arg for arg in cmake_args if not arg.startswith("-DCMAKE_MAKE_PROGRAM")]
+            
+            # Add Visual Studio generator
+            cmake_args.extend([
+                "-G", "MinGW Makefiles",
+                "-A", "x64",  # Target 64-bit
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"  # Required for DLL
+            ])
+        else:
+            # Unix-specific configuration
+            cmake_args.append("-DCMAKE_MAKE_PROGRAM=make")
 
         build_temp = os.path.join(self.build_temp, ext.name)
         os.makedirs(build_temp, exist_ok=True)
@@ -44,19 +57,31 @@ class CMakeBuild(build_ext):
                         capture_output=True,  # This captures the output
                         text=True)
             
-            # Compile the C++ extension
-            subprocess.run(["cmake", "--build", ".", "--config", "Release"],
+            # Build with platform-specific arguments
+            build_args = ["cmake", "--build", ".", "--config", "Release"]
+            if sys.platform == "win32":
+                build_args.extend(["--", "/m"])
+            else:
+                build_args.extend(["--", "-j2"])
+
+            subprocess.run(build_args,
                         cwd=build_temp,
                         check=True,
-                        capture_output=True,  # This captures the output
+                        capture_output=True,
                         text=True)
+            # subprocess.run(["cmake", "--build", ".", "--config", "Release"],
+            #             cwd=build_temp,
+            #             check=True,
+            #             capture_output=True,  # This captures the output
+            #             text=True)
         
         except subprocess.CalledProcessError as e:
             print(f"CMake configuration failed with output:\n{e.stdout}\n{e.stderr}")
             raise
         # Explicitly copy the built library to the expected location
         lib_name = f"{ext.name}{sysconfig.get_config_var('EXT_SUFFIX')}"
-        src_path = os.path.join(extdir, lib_name)
+        # src_path = os.path.join(extdir, lib_name)
+        src_path = os.path.join(build_temp, "Release" if sys.platform == "win32" else "", lib_name)
         dest_path = self.get_ext_fullpath(ext.name)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
         if os.path.exists(src_path):

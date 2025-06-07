@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.5)
 project(UAIBOT_CPP_BINDS)
 
-
+# Windows-specific setup
+if(WIN32)
+    add_compile_definitions(PYBIND11_EXPORT)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)  # Export all symbols for DLL
+endif()
 # Add python 3.11
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter Development.Module)
 # include_directories(${Python3_INCLUDE_DIR})
@@ -30,7 +34,11 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 
 # Set C++ standard and optimization flags
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations") 
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations")
+endif()
 
 # Define source files 
 set(SOURCES
