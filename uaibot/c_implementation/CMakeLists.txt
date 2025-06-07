@@ -65,7 +65,7 @@ target_link_libraries(uaibot_cpp_bind PRIVATE
 )
 # Windows-specific linking
 if(WIN32)
-    target_link_libraries(uaibot_cpp_bind PRIVATE ${Python3_LIBRARY_DIR})
+    target_link_libraries(uaibot_cpp_bind PRIVATE ${Python3_LIBRARIES})
 endif()
 
 message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
