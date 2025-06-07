@@ -34,6 +34,7 @@ class CMakeBuild(build_ext):
         # Windows-specific configuration
         if sys.platform == "win32":
             # Use default Visual Studio generator
+            cmake_args += ["-G", "Visual Studio 17 2022"]
             cmake_args.extend([
                 "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
                 "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
