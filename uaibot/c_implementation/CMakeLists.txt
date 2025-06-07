@@ -18,26 +18,44 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
-# CHECK ALL FILES INSIDE PYBIND11_INCLUDE_DIR
+# Pybind11 discovery with cross-platform support
 execute_process(
-    COMMAND "${Python3_EXECUTABLE}" -c "import os, pybind11; print(os.listdir(os.path.join(os.path.dirname(pybind11.__file__), 'share', 'cmake', 'pybind11')))"
-    OUTPUT_VARIABLE PYBIND11_FILES
+    COMMAND "${Python3_EXECUTABLE}" -c 
+        "import pybind11, os; print(os.path.dirname(pybind11.__file__))"
+    OUTPUT_VARIABLE PYBIND11_ROOT_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
-message(STATUS "Python library: ${Python3_LIBRARIES}")
-message(STATUS "Python executable: ${Python3_EXECUTABLE}")
-message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
-message(STATUS "Pybind11 include directory: ${PYBIND11_INCLUDE_DIR}")
-message(STATUS "Pybind11 files: ${PYBIND11_FILES}")
 
-string(REGEX REPLACE "/include$" "" PYBIND11_DIR "${PYBIND11_INCLUDE_DIR}")
-set(pybind11_DIR ${PYBIND11_DIR})
-set(pybind11_INCLUDE_DIR ${PYBIND11_INCLUDE_DIR})
-set(pybind11_DIR ${PYBIND11_DIR}/share/cmake/pybind11) 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${pybind11_DIR}) 
+message(STATUS "Pybind11 root directory: ${PYBIND11_ROOT_DIR}")
+
+# Set pybind11 paths
+set(PYBIND11_INCLUDE_DIR "${PYBIND11_ROOT_DIR}/include")
+set(pybind11_DIR "${PYBIND11_ROOT_DIR}/share/cmake/pybind11")
+list(APPEND CMAKE_PREFIX_PATH ${pybind11_DIR})
 include_directories(${PYBIND11_INCLUDE_DIR})
-find_package(pybind11 REQUIRED CONFIG)
+# Find pybind11 package
+find_package(pybind11 CONFIG REQUIRED)
+
+# # CHECK ALL FILES INSIDE PYBIND11_INCLUDE_DIR
+# execute_process(
+#     COMMAND "${Python3_EXECUTABLE}" -c "import os, pybind11; print(os.listdir(os.path.join(os.path.dirname(pybind11.__file__), 'share', 'cmake', 'pybind11')))"
+#     OUTPUT_VARIABLE PYBIND11_FILES
+#     OUTPUT_STRIP_TRAILING_WHITESPACE
+# )
+# message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
+# message(STATUS "Python library: ${Python3_LIBRARIES}")
+# message(STATUS "Python executable: ${Python3_EXECUTABLE}")
+# message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
+# message(STATUS "Pybind11 include directory: ${PYBIND11_INCLUDE_DIR}")
+# message(STATUS "Pybind11 files: ${PYBIND11_FILES}")
+
+# string(REGEX REPLACE "/include$" "" PYBIND11_DIR "${PYBIND11_INCLUDE_DIR}")
+# set(pybind11_DIR ${PYBIND11_DIR})
+# set(pybind11_INCLUDE_DIR ${PYBIND11_INCLUDE_DIR})
+# set(pybind11_DIR ${PYBIND11_DIR}/share/cmake/pybind11) 
+# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${pybind11_DIR}) 
+# include_directories(${PYBIND11_INCLUDE_DIR})
+# find_package(pybind11 REQUIRED CONFIG)
 
 
 #Add eigen
