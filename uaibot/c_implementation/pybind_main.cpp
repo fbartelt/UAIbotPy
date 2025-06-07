@@ -29,10 +29,7 @@ using namespace std::chrono;
 using namespace Eigen;
 namespace py = pybind11;
 
-// Define your custom type casters in the `pybind11::detail` namespace
-
-PYBIND11_MODULE(uaibot_cpp_bind, m)
-{
+PYBIND11_MODULE(uaibot_cpp_bind, m) {
      m.doc() = "UAIBot C++ interface";
 
      py::class_<FKResult>(m, "CPP_FKResult")
