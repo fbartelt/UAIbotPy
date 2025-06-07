@@ -17,13 +17,11 @@ execute_process(
     OUTPUT_VARIABLE PYBIND11_INCLUDE_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-string(REGEX REPLACE "/include$" "" PYBIND11_DIR "${PYBIND11_INCLUDE_DIR}")
-set(pybind11_DIR ${PYBIND11_DIR})
-set(pybind11_INCLUDE_DIR ${PYBIND11_INCLUDE_DIR})
-set(pybind11_DIR ${PYBIND11_DIR}/share/cmake/pybind11) 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${pybind11_DIR}) 
-include_directories(${PYBIND11_INCLUDE_DIR})
-find_package(pybind11 REQUIRED)
+# Set pybind11 paths
+set(pybind11_DIR "${PYBIND11_INCLUDE_DIR}/share/cmake/pybind11")
+list(APPEND CMAKE_PREFIX_PATH ${pybind11_DIR})
+find_package(pybind11 CONFIG REQUIRED)
+message(STATUS "Found pybind11: ${pybind11_DIR}")
 
 
 #Add eigen
