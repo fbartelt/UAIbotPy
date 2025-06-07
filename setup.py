@@ -60,7 +60,8 @@ class CMakeBuild(build_ext):
             # Build with platform-specific arguments
             build_args = ["cmake", "--build", ".", "--config", "Release"]
             if sys.platform == "win32":
-                build_args.extend(["--", "/m"])
+                pass
+                # build_args.extend(["--", "/m"])
             else:
                 build_args.extend(["--", "-j2"])
 
