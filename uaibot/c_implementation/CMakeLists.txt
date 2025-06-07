@@ -4,6 +4,7 @@ project(UAIBOT_CPP_BINDS)
 # Windows-specific setup
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)  # Export all symbols for DLL
+    add_compile_definitions(PYBIND11_EXPORT)
 endif()
 # Add python 3.11
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter Development.Module)
