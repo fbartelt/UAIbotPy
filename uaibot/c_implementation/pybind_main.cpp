@@ -30,7 +30,11 @@ using namespace Eigen;
 using namespace pybind11::literals;
 namespace py = pybind11;
 
-#pragma message("PYBIND11_MODULE is defined")
+#ifndef PYBIND11_MODULE
+#   pragma message("❌ PYBIND11_MODULE is not defined")
+#else
+#   pragma message("✅ PYBIND11_MODULE is defined")
+#endif
 
 PYBIND11_MODULE(uaibot_cpp_bind, m) {
      m.doc() = "UAIBot C++ interface";
