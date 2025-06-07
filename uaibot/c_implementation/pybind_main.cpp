@@ -1,8 +1,3 @@
-#ifdef _WIN32
-#define _CRT_SECURE_NO_WARNINGS
-#define NOMINMAX
-#endif
-
 // Include pybind11 FIRST to avoid conflicts
 #include <pybind11/pybind11.h>
 #include <pybind11/eigen.h>

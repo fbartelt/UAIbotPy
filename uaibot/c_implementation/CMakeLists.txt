@@ -5,7 +5,6 @@ project(UAIBOT_CPP_BINDS)
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)  # Export all symbols for DLL
     add_compile_definitions(PYBIND11_EXPORT)
-    set(CMAKE_VERBOSE_MAKEFILE ON)
 endif()
 # Add python 3.11
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter Development.Module)
@@ -70,7 +69,11 @@ set(CMAKE_CXX_STANDARD 14)
 if(MSVC)
     # Enable math constants (M_PI etc.) and strict standards compliance
     add_compile_definitions(_USE_MATH_DEFINES _HAS_STD_BYTE=0)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996 /permissive-")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996 /permissive- /std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267 /wd4996")
+    # /wd4244  # Disable conversion warnings
+    # /wd4267  # Disable size_t conversion warnings
+    # /wd4996  # Disable deprecated function warnings
+    # Copied some flags from mplcairo (https://github.com/matplotlib/mplcairo/blob/93c97b00f07e24bb86e8a53dd49bde9bfe45e6ad/setup.py)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations")
 endif()
