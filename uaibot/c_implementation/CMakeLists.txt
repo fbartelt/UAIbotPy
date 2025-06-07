@@ -67,7 +67,9 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 # Set C++ standard and optimization flags
 set(CMAKE_CXX_STANDARD 14)
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996")
+    # Enable math constants (M_PI etc.) and strict standards compliance
+    add_compile_definitions(_USE_MATH_DEFINES _HAS_STD_BYTE=0)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996 /permissive-")
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -DEIGEN_MPL2_ONLY -Wno-deprecated-declarations")
 endif()
