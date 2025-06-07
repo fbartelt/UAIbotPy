@@ -18,11 +18,18 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 
+# CHECK ALL FILES INSIDE PYBIND11_INCLUDE_DIR
+execute_process(
+    COMMAND "${Python3_EXECUTABLE}" -c "import os, pybind11; print(os.listdir(pybind11.get_include()))"
+    OUTPUT_VARIABLE PYBIND11_FILES
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+)
 message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
 message(STATUS "Python library: ${Python3_LIBRARIES}")
 message(STATUS "Python executable: ${Python3_EXECUTABLE}")
 message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
 message(STATUS "Pybind11 include directory: ${PYBIND11_INCLUDE_DIR}")
+message(STATUS "Pybind11 files: ${PYBIND11_FILES}")
 
 string(REGEX REPLACE "/include$" "" PYBIND11_DIR "${PYBIND11_INCLUDE_DIR}")
 set(pybind11_DIR ${PYBIND11_DIR})
