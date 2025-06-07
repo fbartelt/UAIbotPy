@@ -17,11 +17,20 @@ execute_process(
     OUTPUT_VARIABLE PYBIND11_INCLUDE_DIR
     OUTPUT_STRIP_TRAILING_WHITESPACE
 )
-# Set pybind11 paths
-set(pybind11_DIR "${PYBIND11_INCLUDE_DIR}/share/cmake/pybind11")
-list(APPEND CMAKE_PREFIX_PATH ${pybind11_DIR})
-find_package(pybind11 CONFIG REQUIRED)
-message(STATUS "Found pybind11: ${pybind11_DIR}")
+
+message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
+message(STATUS "Python library: ${Python3_LIBRARIES}")
+message(STATUS "Python executable: ${Python3_EXECUTABLE}")
+message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
+message(STATUS "Pybind11 include directory: ${PYBIND11_INCLUDE_DIR}")
+
+string(REGEX REPLACE "/include$" "" PYBIND11_DIR "${PYBIND11_INCLUDE_DIR}")
+set(pybind11_DIR ${PYBIND11_DIR})
+set(pybind11_INCLUDE_DIR ${PYBIND11_INCLUDE_DIR})
+set(pybind11_DIR ${PYBIND11_DIR}/share/cmake/pybind11) 
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${pybind11_DIR}) 
+include_directories(${PYBIND11_INCLUDE_DIR})
+find_package(pybind11 REQUIRED)
 
 
 #Add eigen
@@ -66,10 +75,6 @@ target_link_libraries(uaibot_cpp_bind PRIVATE
 if(WIN32)
     target_link_libraries(uaibot_cpp_bind PRIVATE ${Python3_LIBRARIES})
 endif()
-
-message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
-message(STATUS "Python library: ${Python3_LIBRARIES}")
-message(STATUS "Python executable: ${Python3_EXECUTABLE}")
 
 # SET RUNTIME SEARCH PATH (Ensures the `.so` file finds dependencies)
 set_target_properties(uaibot_cpp_bind PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
