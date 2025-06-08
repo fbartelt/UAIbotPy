@@ -80,7 +80,8 @@ class CMakeBuild(build_ext):
             print(f"CMake configuration failed with output:\n{e.stdout}\n{e.stderr}")
             raise
         # Explicitly copy the built library to the expected location
-        lib_name = f"{ext.name}{sysconfig.get_config_var('EXT_SUFFIX')}"
+        module_name = ext.name.split('.')[-1] 
+        lib_name = f"{module_name}{sysconfig.get_config_var('EXT_SUFFIX')}"
         possible_dirs = [build_temp]
 
         # On Windows, CMake tends to place output inside a 'Release' or 'Debug' subfolder
