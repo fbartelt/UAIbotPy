@@ -22,6 +22,12 @@ class CMakeBuild(build_ext):
         python_include_dir = sysconfig.get_path("include")
         python_library_dir = sysconfig.get_config_var("LIBDIR")
 
+        if sys.platform == "win32":
+            # Split path and check last component
+            parent, last = os.path.split(extdir)
+            if last in ["Release", "Debug"]:
+                extdir = parent
+
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
             f"-DPython3_EXECUTABLE={sys.executable}",
