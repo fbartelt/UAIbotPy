@@ -119,14 +119,14 @@ set_target_properties(uaibot_cpp_bind PROPERTIES INSTALL_RPATH "$ORIGIN")
 #     LIBRARY_OUTPUT_DIRECTORY ../../
 # )
 
-execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_path('platlib'))"
-    OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-)
-set_target_properties(uaibot_cpp_bind PROPERTIES
-    LIBRARY_OUTPUT_DIRECTORY ${PYTHON_SITE_PACKAGES}/uaibot
-)
+# execute_process(
+#     COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_path('platlib'))"
+#     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES
+#     OUTPUT_STRIP_TRAILING_WHITESPACE
+# )
+# set_target_properties(uaibot_cpp_bind PROPERTIES
+#     LIBRARY_OUTPUT_DIRECTORY ${PYTHON_SITE_PACKAGES}/uaibot
+# )
 
 # Ensure gjk.c is compiled as C
 set_source_files_properties(gjk.c PROPERTIES LANGUAGE C)
