@@ -15,14 +15,14 @@ class TestBall:
     
     def test_list_uaibot_contents(self):
         uaibot_path = os.path.dirname(uaibot.__file__)
-        print(f"\n[DEBUG] uaibot module path: {uaibot_path}")
+        warnings.warn(f"\n[DEBUG] uaibot module path: {uaibot_path}")
 
         if not os.path.exists(uaibot_path):
             warnings.warn(f"[WARNING] uaibot path does not exist: {uaibot_path}")
-            return
+            # return
 
         contents = os.listdir(uaibot_path)
-        print(f"[DEBUG] Contents of uaibot/: {contents}")
+        warnings.warn(f"[DEBUG] Contents of uaibot/: {contents}")
 
         # Check for shared object (.so, .pyd, or .dll depending on platform)
         found_cpp_bind = any(
@@ -33,7 +33,7 @@ class TestBall:
         if not found_cpp_bind:
             warnings.warn("[WARNING] uaibot_cpp_bind shared object not found in uaibot package folder.")
         else:
-            print("[INFO] uaibot_cpp_bind shared object found.")
+            warnings.warn("[INFO] uaibot_cpp_bind shared object found.")
 
     def test_initialization(self, default_ball):
         """Test basic creation and repr"""
