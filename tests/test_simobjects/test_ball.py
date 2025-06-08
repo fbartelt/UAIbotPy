@@ -24,6 +24,9 @@ class TestBall:
         contents = os.listdir(uaibot_path)
         warnings.warn(f"[DEBUG] Contents of uaibot/: {contents}")
 
+        c_contentes = os.listdir(os.path.join(uaibot_path, "c_implementation"))
+        warnings.warn(f"[DEBUG] Contents of uaibot/c_implementation/: {c_contentes}")
+
         # Check for shared object (.so, .pyd, or .dll depending on platform)
         found_cpp_bind = any(
             name.startswith("uaibot_cpp_bind") and (name.endswith(".so") or name.endswith(".pyd") or name.endswith(".dll"))
