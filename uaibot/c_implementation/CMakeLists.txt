@@ -4,7 +4,7 @@ project(UAIBOT_CPP_BINDS)
 # Windows-specific setup
 if(WIN32)
     set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)  # Export all symbols for DLL
-    add_compile_definitions(PYBIND11_EXPORT)
+    # add_compile_definitions(PYBIND11_EXPORT)
 endif()
 # Add python 3.11
 find_package(Python3 3.10 REQUIRED COMPONENTS Interpreter Development.Module)
@@ -69,7 +69,7 @@ set(CMAKE_CXX_STANDARD 14)
 if(MSVC)
     # Enable math constants (M_PI etc.) and strict standards compliance
     add_compile_definitions(_USE_MATH_DEFINES _HAS_STD_BYTE=0)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996 /permissive- /std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267 /wd4996")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /O2 /DEIGEN_MPL2_ONLY /wd4996 /permissive- /D_USE_MATH_DEFINES")
     # /wd4244  # Disable conversion warnings
     # /wd4267  # Disable size_t conversion warnings
     # /wd4996  # Disable deprecated function warnings
@@ -95,6 +95,10 @@ target_include_directories(nanoflann INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 # Ensure pybind11 and Eigen are properly included
 pybind11_add_module(uaibot_cpp_bind ${SOURCES})
 
+target_link_libraries(uaibot_cpp_bind PRIVATE
+    pybind11::pybind11      # Python headers + core
+    pybind11::windows_extras  # Windows-specific optimizations
+)
 # EXPLICITLY LINK PYTHON 3.11 LIBRARY
 # target_include_directories(uaibot_cpp_bind PRIVATE ${EIGEN3_INCLUDE_DIR} ${pybind11_INCLUDE_DIR} ${Python3_INCLUDE_DIR})
 target_include_directories(uaibot_cpp_bind PRIVATE ${EIGEN3_INCLUDE_DIR})

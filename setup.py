@@ -34,13 +34,13 @@ class CMakeBuild(build_ext):
         # Windows-specific configuration
         if sys.platform == "win32":
             # Use default Visual Studio generator
-            cmake_args += ["-G", "Ninja"]
-            # cmake_args.extend([
-            #     "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
-            #     "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
-            # ])
+            # cmake_args += ["-G", "Ninja"]
+            cmake_args.extend([
+                "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
+                "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
+            ])
             
-            # # Remove make override since we're using MSBuild
+            # Remove make override since we're using MSBuild
             cmake_args = [arg for arg in cmake_args if arg != "-DCMAKE_MAKE_PROGRAM=make"]
         else:
             # Unix-specific configuration
@@ -60,8 +60,8 @@ class CMakeBuild(build_ext):
             # Build with platform-specific arguments
             build_args = ["cmake", "--build", ".", "--config", "Release"]
             if sys.platform == "win32":
-                pass
-                # build_args.extend(["--", "/m"])
+                # pass
+                build_args.extend(["--", "/m"])
             else:
                 build_args.extend(["--", "-j2"])
 
