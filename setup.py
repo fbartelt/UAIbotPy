@@ -3,6 +3,7 @@ import sys
 import subprocess
 import setuptools
 import sysconfig
+import shutil
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
@@ -82,24 +83,27 @@ class CMakeBuild(build_ext):
         # Explicitly copy the built library to the expected location
         module_name = ext.name.split('.')[-1] 
         lib_name = f"{module_name}{sysconfig.get_config_var('EXT_SUFFIX')}"
-        possible_dirs = [build_temp]
+        src_path = os.path.join(build_temp, "Release" if sys.platform == "win32" else "", lib_name)
 
-        # On Windows, CMake tends to place output inside a 'Release' or 'Debug' subfolder
+        # If file inside temporary build directory exists, copy it to the expected directory
+        if os.path.exists(src_path):
+            dest_path = self.get_ext_fullpath(ext.name)
+            os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+            self.copy_file(src_path, dest_path)
+            print(f"[INFO] Copied {src_path} to {dest_path}")
+
         if sys.platform == "win32":
-            possible_dirs += [os.path.join(build_temp, cfg) for cfg in ("Release", "Debug")]
+            release_path = os.path.join(extdir, "Release", lib_name)
+            if os.path.exists(release_path):
+                dest_path = os.path.join(extdir, lib_name)
+                os.makedirs(extdir, exist_ok=True)
+                shutil.move(release_path, dest_path)
+                print(f"[INFO] Moved {release_path} to {dest_path}")
 
-        # Search for the built shared library
-        for directory in possible_dirs:
-            candidate = os.path.join(directory, lib_name)
-            if os.path.exists(candidate):
-                src_path = candidate
-                break
-        else:
-            raise FileNotFoundError(f"Could not find built extension: {lib_name}")
         # src_path = os.path.join(extdir, lib_name)
-        dest_path = self.get_ext_fullpath(ext.name)
-        os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        self.copy_file(src_path, dest_path)
+        # dest_path = self.get_ext_fullpath(ext.name)
+        # os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+        # self.copy_file(src_path, dest_path)
 
 class CustomInstall(install):
     """Ensures the C++ extension is built during pip install."""
