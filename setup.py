@@ -4,11 +4,11 @@ import subprocess
 import setuptools
 import sysconfig
 import shutil
+import multiprocessing
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 from setuptools.command.develop import develop
-from pathlib import Path
 
 class CMakeExtension(Extension):
     """Defines a CMake extension for compiling C++ code."""
@@ -34,17 +34,16 @@ class CMakeBuild(build_ext):
 
         # Windows-specific configuration
         if sys.platform == "win32":
-            # Use default Visual Studio generator
-            # cmake_args += ["-G", "Ninja"]
             cmake_args.extend([
-                "-DCMAKE_CXX_FLAGS=/std:c++17 /Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
+                "-DCMAKE_CXX_FLAGS=/Zc:__cplusplus /EHsc /D_USE_MATH_DEFINES /wd4244 /wd4267",
                 "-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=ON"
             ])
-            
-            # Remove make override since we're using MSBuild
-            cmake_args = [arg for arg in cmake_args if arg != "-DCMAKE_MAKE_PROGRAM=make"]
+            # /wd4244  # Disable conversion warnings
+            # /wd4267  # Disable size_t conversion warnings
+            # /wd4996  # Disable deprecated function warnings
+            # Copied some flags from mplcairo (https://github.com/matplotlib/mplcairo/blob/93c97b00f07e24bb86e8a53dd49bde9bfe45e6ad/setup.py)
         else:
-            # Unix-specific configuration
+            # Unix-specific configuration (Old ubuntu use gmake as default)
             cmake_args.append("-DCMAKE_MAKE_PROGRAM=make")
 
         build_temp = os.path.join(self.build_temp, ext.name)
@@ -61,21 +60,16 @@ class CMakeBuild(build_ext):
             # Build with platform-specific arguments
             build_args = ["cmake", "--build", ".", "--config", "Release"]
             if sys.platform == "win32":
-                # pass
                 build_args.extend(["--", "/m"])
             else:
-                build_args.extend(["--", "-j2"])
+                num_jobs = multiprocessing.cpu_count()
+                build_args.extend(["--", f"-j{num_jobs}"])
 
             subprocess.run(build_args,
                         cwd=build_temp,
                         check=True,
                         capture_output=True,
                         text=True)
-            # subprocess.run(["cmake", "--build", ".", "--config", "Release"],
-            #             cwd=build_temp,
-            #             check=True,
-            #             capture_output=True,  # This captures the output
-            #             text=True)
         
         except subprocess.CalledProcessError as e:
             print(f"CMake configuration failed with output:\n{e.stdout}\n{e.stderr}")
@@ -99,11 +93,6 @@ class CMakeBuild(build_ext):
                 os.makedirs(extdir, exist_ok=True)
                 shutil.move(release_path, dest_path)
                 print(f"[INFO] Moved {release_path} to {dest_path}")
-
-        # src_path = os.path.join(extdir, lib_name)
-        # dest_path = self.get_ext_fullpath(ext.name)
-        # os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        # self.copy_file(src_path, dest_path)
 
 class CustomInstall(install):
     """Ensures the C++ extension is built during pip install."""
