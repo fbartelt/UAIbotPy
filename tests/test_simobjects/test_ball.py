@@ -4,11 +4,36 @@ import numpy as np
 from uaibot.simobjects.pointcloud import PointCloud
 from uaibot.simobjects.ball import Ball
 from uaibot.simobjects.box import Box
+import os
+import warnings
+import uaibot
 
 class TestBall:
     @pytest.fixture
     def default_ball(self):
         return Ball(name="test_ball", radius=0.1, color="red", opacity=0.7)
+    
+    def test_list_uaibot_contents(self):
+        uaibot_path = os.path.dirname(uaibot.__file__)
+        print(f"\n[DEBUG] uaibot module path: {uaibot_path}")
+
+        if not os.path.exists(uaibot_path):
+            warnings.warn(f"[WARNING] uaibot path does not exist: {uaibot_path}")
+            return
+
+        contents = os.listdir(uaibot_path)
+        print(f"[DEBUG] Contents of uaibot/: {contents}")
+
+        # Check for shared object (.so, .pyd, or .dll depending on platform)
+        found_cpp_bind = any(
+            name.startswith("uaibot_cpp_bind") and (name.endswith(".so") or name.endswith(".pyd") or name.endswith(".dll"))
+            for name in contents
+        )
+
+        if not found_cpp_bind:
+            warnings.warn("[WARNING] uaibot_cpp_bind shared object not found in uaibot package folder.")
+        else:
+            print("[INFO] uaibot_cpp_bind shared object found.")
 
     def test_initialization(self, default_ball):
         """Test basic creation and repr"""
