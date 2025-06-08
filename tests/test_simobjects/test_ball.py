@@ -24,6 +24,9 @@ class TestBall:
         contents = os.listdir(uaibot_path)
         warnings.warn(f"[DEBUG] Contents of uaibot/: {contents}")
 
+        if "Release" in contents:
+            warnings.warn(f"[DEBUG] Found 'Release' directory in uaibot path: {os.path.join(uaibot_path, 'Release')} with contents: {os.listdir(os.path.join(uaibot_path, 'Release'))}")
+
         c_contentes = os.listdir(os.path.join(uaibot_path, "c_implementation"))
         warnings.warn(f"[DEBUG] Contents of uaibot/c_implementation/: {c_contentes}")
 
