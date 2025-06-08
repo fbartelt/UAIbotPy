@@ -22,12 +22,6 @@ class CMakeBuild(build_ext):
         python_include_dir = sysconfig.get_path("include")
         python_library_dir = sysconfig.get_config_var("LIBDIR")
 
-        if sys.platform == "win32":
-            # Split path and check last component
-            parent, last = os.path.split(extdir)
-            if last in ["Release", "Debug"]:
-                extdir = parent
-
         cmake_args = [
             f"-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={extdir}",
             f"-DPython3_EXECUTABLE={sys.executable}",
@@ -87,12 +81,24 @@ class CMakeBuild(build_ext):
             raise
         # Explicitly copy the built library to the expected location
         lib_name = f"{ext.name}{sysconfig.get_config_var('EXT_SUFFIX')}"
+        possible_dirs = [build_temp]
+
+        # On Windows, CMake tends to place output inside a 'Release' or 'Debug' subfolder
+        if sys.platform == "win32":
+            possible_dirs += [os.path.join(build_temp, cfg) for cfg in ("Release", "Debug")]
+
+        # Search for the built shared library
+        for directory in possible_dirs:
+            candidate = os.path.join(directory, lib_name)
+            if os.path.exists(candidate):
+                src_path = candidate
+                break
+        else:
+            raise FileNotFoundError(f"Could not find built extension: {lib_name}")
         # src_path = os.path.join(extdir, lib_name)
-        src_path = os.path.join(build_temp, "Release" if sys.platform == "win32" else "", lib_name)
         dest_path = self.get_ext_fullpath(ext.name)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        if os.path.exists(src_path):
-            self.copy_file(src_path, dest_path)
+        self.copy_file(src_path, dest_path)
 
 class CustomInstall(install):
     """Ensures the C++ extension is built during pip install."""
