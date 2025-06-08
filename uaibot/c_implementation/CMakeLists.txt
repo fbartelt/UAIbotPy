@@ -42,10 +42,10 @@ find_package(pybind11 CONFIG REQUIRED)
 #     OUTPUT_VARIABLE PYBIND11_FILES
 #     OUTPUT_STRIP_TRAILING_WHITESPACE
 # )
-# message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
-# message(STATUS "Python library: ${Python3_LIBRARIES}")
-# message(STATUS "Python executable: ${Python3_EXECUTABLE}")
-# message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
+message(STATUS "Python includes: ${Python3_INCLUDE_DIRS}")
+message(STATUS "Python library: ${Python3_LIBRARIES}")
+message(STATUS "Python executable: ${Python3_EXECUTABLE}")
+message(STATUS "Python lib directory: ${Python3_LIBRARY_DIR}")
 # message(STATUS "Pybind11 include directory: ${PYBIND11_INCLUDE_DIR}")
 # message(STATUS "Pybind11 files: ${PYBIND11_FILES}")
 
@@ -102,10 +102,7 @@ target_link_libraries(uaibot_cpp_bind PRIVATE
 # EXPLICITLY LINK PYTHON 3.11 LIBRARY
 # target_include_directories(uaibot_cpp_bind PRIVATE ${EIGEN3_INCLUDE_DIR} ${pybind11_INCLUDE_DIR} ${Python3_INCLUDE_DIR})
 target_include_directories(uaibot_cpp_bind PRIVATE ${EIGEN3_INCLUDE_DIR})
-target_link_libraries(uaibot_cpp_bind PRIVATE
-    nanoflann
-    ${Python3_LIBRARY_DIR}
-)
+target_link_libraries(uaibot_cpp_bind PRIVATE nanoflann)
 # Windows-specific linking
 if(WIN32)
     target_link_libraries(uaibot_cpp_bind PRIVATE ${Python3_LIBRARIES})
