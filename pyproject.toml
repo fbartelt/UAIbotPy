@@ -89,7 +89,10 @@ archs = "x86_64"
 
 # macOS configuration
 [tool.cibuildwheel.macos]
-archs = "universal2"
+#archs = "x86_64"
+archs = "universal2"  
+# Universal builds for both x86_64 and arm64 -- Currently not working with cibuildwheel
+# Note: Universal builds may require additional configuration in the future (CMakelists, setuptools, etc.)
 
 # Windows configuration
 [tool.cibuildwheel.windows]
