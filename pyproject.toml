@@ -8,14 +8,14 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "uaibot"
+name = "uaibot-test-fork"
 version = "1.2.3"
-description = "Uaibot, online robotic simulator"
+description = "TEST Uaibot, online robotic simulator"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-    {name = "Vinicius Goncalves et al", email = "vinicius.marianog@gmail.com"},
-]
+#authors = [
+#    {name = "Vinicius Goncalves et al", email = "vinicius.marianog@gmail.com"},
+#]
 dependencies = [
     "colour>=0.1.5",
     "httplib2>=0.20.4",
@@ -74,3 +74,23 @@ include = ["uaibot*"]
 [tool.setuptools.package-data]
 "uaibot.simulation" = ["*.js"]
 "uaibot" = ["c_implementation/**/*"]
+
+[tool.cibuildwheel]
+# Build for Python 3.10-3.13
+build = ["cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+before-build = "pip install pybind11"
+build-verbosity = 1
+test-command = "python -c 'import uaibot; print(uaibot.__version__); import uaibot_cpp_bind'"
+
+# Linux configuration
+[tool.cibuildwheel.linux]
+manylinux-x86_64-image = "manylinux_2_34"
+archs = "x86_64"
+
+# macOS configuration
+[tool.cibuildwheel.macos]
+archs = "universal2"
+
+# Windows configuration
+[tool.cibuildwheel.windows]
+archs = "AMD64"

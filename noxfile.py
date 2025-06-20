@@ -20,7 +20,7 @@ def tests(session: nox.Session) -> None:
         "pytest",
         "tests/test_utils/",
         "tests/test_simobjects/",
-        "--tb=long",   # Full error tracebacks
+         "--tb=long",   # Full error tracebacks
         "--color=yes", # Colorized output
     )
     
