@@ -89,7 +89,7 @@ test-command = "python -c 'import uaibot; print(uaibot.__version__); import uaib
 
 # macOS configuration
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
+archs = "auto"
 test-command = "python -c 'import uaibot; print(uaibot.__version__); import uaibot_cpp_bind'"
 #archs = "universal2"  
 # Universal builds for both x86_64 and arm64 -- Currently not working with cibuildwheel
